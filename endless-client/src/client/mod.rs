@@ -1,6 +1,6 @@
 pub mod types;
 
-use crate::client::types::{IndexData, ViewResp};
+use crate::client::types::{IndexData, ViewResponse};
 use crate::error::EdsErr;
 use crate::sdk::rest_client::RestClient;
 use crate::sdk::types::{EntryFnArgs, ViewFnArgs};
@@ -115,7 +115,7 @@ impl BaseClient {
         &self,
         owner: AccountAddress,
         token: AccountAddress,
-    ) -> AppResult<ViewResp<u128>> {
+    ) -> AppResult<ViewResponse<u128>> {
         let args = vec![owner.to_bytes()?, token.to_bytes()?];
         let t_args = vec!["0x1::fungible_asset::Metadata"];
         let (mun, fun) = ("primary_fungible_store", "balance");
@@ -127,7 +127,7 @@ impl BaseClient {
         Ok(res.into())
     }
 
-    pub async fn get_eds_balance(&self, owner: &AccountAddress) -> AppResult<ViewResp<u128>> {
+    pub async fn get_eds_balance(&self, owner: &AccountAddress) -> AppResult<ViewResponse<u128>> {
         let (args, t_args) = (vec![owner.to_bytes()?], vec![]);
         let args = ViewFnArgs::new(AccountAddress::ONE, "endless_coin", "balance", args, t_args)?;
         let res = self
@@ -141,7 +141,7 @@ impl BaseClient {
         args: ViewFnArgs,
         code: &'static DynErrCode,
         ext_msg: Option<String>,
-    ) -> AppResult<ViewResp<T>> {
+    ) -> AppResult<ViewResponse<T>> {
         let resp = self.rest_client().view_fun(args).await;
         let resp = if let Some(msg) = ext_msg {
             resp.map_err(map_err!(code, msg))?
@@ -151,7 +151,7 @@ impl BaseClient {
 
         let state = resp.state().clone();
         let (_, lps): (u8, T) = resp.into_inner();
-        Ok(ViewResp::new(state, lps))
+        Ok(ViewResponse::new(state, lps))
     }
 
     pub async fn entry_fn_with_gas_txn(
@@ -159,7 +159,7 @@ impl BaseClient {
         args: EntryFnArgs<'_>,
         gas_used: Option<u64>,
         code: &'static DynErrCode,
-    ) -> AppResult<ViewResp<Transaction>> {
+    ) -> AppResult<ViewResponse<Transaction>> {
         let fn_name = args.fn_name;
         let mut overrides = None;
         if let Some(gas_used) = gas_used {
@@ -186,7 +186,7 @@ impl BaseClient {
     pub async fn wait_for_txn(
         &self,
         pending_tx: &PendingTransaction,
-    ) -> AppResult<ViewResp<Transaction>> {
+    ) -> AppResult<ViewResponse<Transaction>> {
         let resp = self
             .client
             .wait_for_transaction(pending_tx)
@@ -194,6 +194,6 @@ impl BaseClient {
             .map_err(map_err!(&EdsErr::WaitForTxnErr))?;
 
         let state = resp.state().clone();
-        Ok(ViewResp::new(state, resp.into_inner()))
+        Ok(ViewResponse::new(state, resp.into_inner()))
     }
 }

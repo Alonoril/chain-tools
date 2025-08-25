@@ -3,12 +3,12 @@ use endless_sdk::rest_client::{Response, State};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
-pub struct ViewResp<T> {
+pub struct ViewResponse<T> {
     pub state: State,
     pub data: T,
 }
 
-impl<T> ViewResp<T> {
+impl<T> ViewResponse<T> {
     pub fn new(state: State, data: T) -> Self {
         Self { state, data }
     }
