@@ -1,4 +1,4 @@
-use crate::error::SdkErr;
+use crate::error::EdsErr;
 use base_infra::map_err;
 use base_infra::result::AppResult;
 use endless_sdk::helper_client::Overrides;
@@ -34,6 +34,7 @@ pub struct EntryFnArgs<'a> {
     pub signer: &'a LocalAccount,
     pub entry_fn: EntryFunction,
     pub overrides: Option<Overrides>,
+    pub fn_name: &'a str,
 }
 
 impl<'a> EntryFnArgs<'a> {
@@ -44,15 +45,14 @@ impl<'a> EntryFnArgs<'a> {
         function_name: &'a str,
         args: Vec<Vec<u8>>,
         type_args: Vec<&'a str>,
-        overrides: Option<Overrides>,
     ) -> AppResult<Self> {
         let module_name = Identifier::new(module_name).map_err(map_err!(
-            &SdkErr::ParseIdentifier,
+            &EdsErr::ParseIdentifier,
             format!("from module {module_name}")
         ))?;
 
         let fun = Identifier::new(function_name).map_err(map_err!(
-            &SdkErr::ParseIdentifier,
+            &EdsErr::ParseIdentifier,
             format!("from function {function_name}")
         ))?;
 
@@ -64,8 +64,13 @@ impl<'a> EntryFnArgs<'a> {
             module_address,
             signer,
             entry_fn,
-            overrides,
+            overrides: None,
+            fn_name: function_name,
         })
+    }
+
+    pub fn with_overrides(self, overrides: Option<Overrides>) -> Self {
+        Self { overrides, ..self }
     }
 }
 
@@ -84,12 +89,12 @@ impl ViewFnArgs {
         type_args: Vec<&str>,
     ) -> AppResult<Self> {
         let module_name = Identifier::new(module_name).map_err(map_err!(
-            &SdkErr::ParseIdentifier,
+            &EdsErr::ParseIdentifier,
             format!("from module {module_name}")
         ))?;
 
         let fun = Identifier::new(function_name).map_err(map_err!(
-            &SdkErr::ParseIdentifier,
+            &EdsErr::ParseIdentifier,
             format!("from function {function_name}")
         ))?;
 
@@ -108,7 +113,7 @@ impl ViewFnArgs {
 }
 
 fn parse_type_tag(s: &str) -> AppResult<TypeTag> {
-    s.parse().map_err(map_err!(&SdkErr::ParseTypeArgs, s))
+    s.parse().map_err(map_err!(&EdsErr::ParseTypeArgs, s))
 }
 
 fn parse_type_tags(s: Vec<&str>) -> AppResult<Vec<TypeTag>> {

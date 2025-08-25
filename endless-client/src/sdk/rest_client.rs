@@ -1,14 +1,14 @@
-use crate::error::SdkErr;
+use crate::error::EdsErr;
+use crate::sdk::types::{ChainIdCache, EntryFnArgs, ViewFnArgs};
 use base_infra::map_err;
 use base_infra::result::AppResult;
-use endless_sdk::rest_client::endless_api_types::IndexResponse;
+use endless_sdk::rest_client::endless_api_types::{IndexResponse, UserTransaction};
 use endless_sdk::rest_client::{Client, EndlessResult, PendingTransaction, Response};
 use endless_sdk::transaction_builder::TransactionBuilder;
 use endless_sdk::types::chain_id::ChainId;
 use endless_sdk::types::transaction::TransactionPayload;
 use serde::de::DeserializeOwned;
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::sdk::types::{ChainIdCache, EntryFnArgs, ViewFnArgs};
 
 #[derive(Clone, Debug)]
 pub struct RestClient<'a> {
@@ -24,7 +24,7 @@ impl<'a> RestClient<'a> {
         self.rest
             .get_index()
             .await
-            .map_err(map_err!(&SdkErr::GetIndexErr))
+            .map_err(map_err!(&EdsErr::GetIndexErr))
     }
 
     pub async fn get_chain_id(&self) -> AppResult<ChainId> {
@@ -37,6 +37,38 @@ impl<'a> RestClient<'a> {
         ChainIdCache.set(chain_id).await;
         Ok(chain_id)
     }
+    pub async fn simulate_fun(
+        &self,
+        args: EntryFnArgs<'a>,
+    ) -> AppResult<Response<Vec<UserTransaction>>> {
+        let chain_id = self.get_chain_id().await?;
+        let overrides = args.overrides.unwrap_or_default();
+
+        let expires_at = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(map_err!(&EdsErr::SystemTimeErr))?
+            .as_secs()
+            + overrides.timeout_secs;
+
+        let payload = TransactionPayload::EntryFunction(args.entry_fn);
+        let txn_builder = TransactionBuilder::new(payload, expires_at, chain_id)
+            .sender(args.signer.address())
+            .sequence_number(args.signer.sequence_number())
+            .max_gas_amount(overrides.max_gas_amount)
+            .gas_unit_price(overrides.gas_unit_price);
+
+        let signed_txn = args.signer.sign_with_transaction_builder(txn_builder);
+        let res = self
+            .rest
+            .simulate_with_gas_estimation(&signed_txn, true, false)
+            .await
+            .map_err(map_err!(&EdsErr::SimulateTxnErr))?;
+
+        // decrement sequence number
+        args.signer.decrement_sequence_number();
+
+        Ok(res)
+    }
 
     pub async fn entry_fun(
         &self,
@@ -47,7 +79,7 @@ impl<'a> RestClient<'a> {
 
         let expires_at = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map_err(map_err!(&SdkErr::SystemTimeErr))?
+            .map_err(map_err!(&EdsErr::SystemTimeErr))?
             .as_secs()
             + overrides.timeout_secs;
 
@@ -61,7 +93,7 @@ impl<'a> RestClient<'a> {
         self.rest
             .submit(&signed_txn)
             .await
-            .map_err(map_err!(&SdkErr::SubmitTxnErr))
+            .map_err(map_err!(&EdsErr::SubmitTxnErr))
     }
 
     pub async fn view_fun<T: DeserializeOwned>(

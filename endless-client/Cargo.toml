@@ -12,9 +12,11 @@ base-infra = { workspace = true }
 anyhow.workspace = true
 tracing.workspace = true
 endless-sdk.workspace = true
+bcs.workspace = true
 serde.workspace = true
 moka = { workspace = true, features = ["future", "sync"] }
 hex.workspace = true
+url.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros"] }

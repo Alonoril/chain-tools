@@ -22,6 +22,7 @@ tracing = "0.1"
 reqwest = "0.12"
 moka = { version = "0.12", features = ["future"] }
 hex = "0.4"
+url = "2"
 futures = "0.3"
 serde_json = "1"
 async-trait = "0.1"
@@ -29,6 +30,7 @@ async-trait = "0.1"
 # endless
 move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
 endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+bcs = { git = "https://github.com/aptos-labs/bcs.git", rev = "18f1688c5d32026e68b410420671c6b146c3f639" }
 
 
 [patch.crates-io]
