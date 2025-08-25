@@ -19,11 +19,11 @@ use tracing::info;
 use url::Url;
 
 #[derive(Clone)]
-pub struct EndlessClient {
+pub struct BaseClient {
     pub client: Client,
 }
 
-impl EndlessClient {
+impl BaseClient {
     pub fn new(node_url: &str) -> AppResult<Self> {
         let node_url = Url::from_str(node_url).map_err(map_err!(&EdsErr::InvalidNodeUrl))?;
         Ok(Self {
