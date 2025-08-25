@@ -2,7 +2,7 @@ use endless_sdk::rest_client::endless_api_types::IndexResponse;
 use endless_sdk::rest_client::{Response, State};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ViewResp<T> {
     pub state: State,
     pub data: T,
