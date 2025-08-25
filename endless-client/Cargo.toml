@@ -1,0 +1,20 @@
+[package]
+name = "endless-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra = { workspace = true }
+
+anyhow.workspace = true
+tracing.workspace = true
+endless-sdk.workspace = true
+serde.workspace = true
+moka = { workspace = true, features = ["future", "sync"] }
+hex.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros"] }

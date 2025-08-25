@@ -1,0 +1,37 @@
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+authors = ["Alon"]
+repository = "https://github.com/Alonoril/chain-tools"
+
+[workspace]
+resolver = "2"
+members = [
+    "endless-client"
+]
+
+[workspace.dependencies]
+base-infra = { git = "https://github.com/alonoril/infra-rs", branch = "main" }
+
+tokio = { version = "1" }
+serde = { version = "1", features = ["derive"] }
+anyhow = "1"
+tracing = "0.1"
+
+reqwest = "0.12"
+moka = { version = "0.12", features = ["future"] }
+hex = "0.4"
+futures = "0.3"
+serde_json = "1"
+async-trait = "0.1"
+
+# endless
+move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+
+
+[patch.crates-io]
+merlin = { git = "https://github.com/aptos-labs/merlin" }
+x25519-dalek = { git = "https://github.com/aptos-labs/x25519-dalek", branch = "zeroize_v1" }
+
