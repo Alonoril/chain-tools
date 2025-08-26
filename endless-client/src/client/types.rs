@@ -1,25 +1,6 @@
+use endless_sdk::rest_client::Response;
 use endless_sdk::rest_client::endless_api_types::IndexResponse;
-use endless_sdk::rest_client::{Response, State};
 use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone)]
-pub struct ViewResponse<T> {
-    pub state: State,
-    pub data: T,
-}
-
-impl<T> ViewResponse<T> {
-    pub fn new(state: State, data: T) -> Self {
-        Self { state, data }
-    }
-
-    pub fn into_pair(self) -> (State, T) {
-        (self.state, self.data)
-    }
-    pub fn into_inner(self) -> T {
-        self.data
-    }
-}
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct IndexData {

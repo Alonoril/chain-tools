@@ -1,5 +1,5 @@
 use crate::error::EdsErr;
-use crate::sdk::types::{ChainIdCache, EntryFnArgs, ViewFnArgs};
+use crate::sdk_ext::types::{ChainIdCache, EntryFnArgs, ViewFnArgs};
 use base_infra::map_err;
 use base_infra::result::AppResult;
 use endless_sdk::rest_client::endless_api_types::{IndexResponse, UserTransaction};
@@ -12,19 +12,12 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Debug)]
 pub struct RestClient<'a> {
-    rest: &'a Client,
+    client: &'a Client,
 }
 
 impl<'a> RestClient<'a> {
-    pub fn new(rest: &'a Client) -> Self {
-        Self { rest }
-    }
-
-    pub async fn get_index(&self) -> AppResult<Response<IndexResponse>> {
-        self.rest
-            .get_index()
-            .await
-            .map_err(map_err!(&EdsErr::GetIndexErr))
+    pub fn new(client: &'a Client) -> Self {
+        Self { client }
     }
 
     pub async fn get_chain_id(&self) -> AppResult<ChainId> {
@@ -59,7 +52,7 @@ impl<'a> RestClient<'a> {
 
         let signed_txn = args.signer.sign_with_transaction_builder(txn_builder);
         let res = self
-            .rest
+            .client
             .simulate_with_gas_estimation(&signed_txn, true, false)
             .await
             .map_err(map_err!(&EdsErr::SimulateTxnErr))?;
@@ -90,7 +83,7 @@ impl<'a> RestClient<'a> {
             .gas_unit_price(overrides.gas_unit_price);
 
         let signed_txn = args.signer.sign_with_transaction_builder(txn_builder);
-        self.rest
+        self.client
             .submit(&signed_txn)
             .await
             .map_err(map_err!(&EdsErr::SubmitTxnErr))
@@ -100,6 +93,13 @@ impl<'a> RestClient<'a> {
         &self,
         args: ViewFnArgs,
     ) -> EndlessResult<Response<T>> {
-        self.rest.view_bcs(&args.view_fn, None).await
+        self.client.view_bcs(&args.view_fn, None).await
+    }
+
+    async fn get_index(&self) -> AppResult<Response<IndexResponse>> {
+        self.client
+            .get_index()
+            .await
+            .map_err(map_err!(&EdsErr::GetIndexErr))
     }
 }

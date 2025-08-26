@@ -1,9 +1,9 @@
 pub mod types;
 
-use crate::client::types::{IndexData, ViewResponse};
+use crate::client::types::IndexData;
 use crate::error::EdsErr;
-use crate::sdk::rest_client::RestClient;
-use crate::sdk::types::{EntryFnArgs, ViewFnArgs};
+use crate::sdk_ext::rest_client::RestClient;
+use crate::sdk_ext::types::{EntryFnArgs, ViewFnArgs};
 use crate::utils::bcs_ext::BcsExt;
 use base_infra::map_err;
 use base_infra::result::{AppResult, DynErrCode};
@@ -19,12 +19,18 @@ use tracing::info;
 use url::Url;
 
 #[derive(Clone)]
-pub struct BaseClient {
+pub struct EnhancedClient {
     pub client: Client,
 }
 
-impl BaseClient {
-    pub fn new(node_url: &str) -> AppResult<Self> {
+impl EnhancedClient {
+    pub fn new(node_url: Url) -> Self {
+        Self {
+            client: Client::new(node_url),
+        }
+    }
+
+    pub fn new_with_url_str(node_url: &str) -> AppResult<Self> {
         let node_url = Url::from_str(node_url).map_err(map_err!(&EdsErr::InvalidNodeUrl))?;
         Ok(Self {
             client: Client::new(node_url),
@@ -75,6 +81,7 @@ impl BaseClient {
 
         self.rest_client().entry_fun(fn_args).await
     }
+
     pub async fn simulate_transfer_token(
         &self,
         from: &LocalAccount,
@@ -93,7 +100,7 @@ impl BaseClient {
         self.rest_client().simulate_fun(fn_args).await
     }
 
-    pub async fn transfer_coins(
+    pub async fn transfer_token(
         &self,
         from: &LocalAccount,
         to: AccountAddress,
@@ -115,33 +122,33 @@ impl BaseClient {
         &self,
         owner: AccountAddress,
         token: AccountAddress,
-    ) -> AppResult<ViewResponse<u128>> {
+    ) -> AppResult<Response<u128>> {
         let args = vec![owner.to_bytes()?, token.to_bytes()?];
         let t_args = vec!["0x1::fungible_asset::Metadata"];
         let (mun, fun) = ("primary_fungible_store", "balance");
 
         let args = ViewFnArgs::new(AccountAddress::ONE, mun, fun, args, t_args)?;
         let res = self
-            .view_fn_with_state(args, &EdsErr::GetTokenBalance, None)
+            .view_fn_with_err(args, &EdsErr::GetTokenBalance, None)
             .await?;
         Ok(res.into())
     }
 
-    pub async fn get_eds_balance(&self, owner: &AccountAddress) -> AppResult<ViewResponse<u128>> {
+    pub async fn balance_of(&self, owner: &AccountAddress) -> AppResult<Response<u128>> {
         let (args, t_args) = (vec![owner.to_bytes()?], vec![]);
         let args = ViewFnArgs::new(AccountAddress::ONE, "endless_coin", "balance", args, t_args)?;
         let res = self
-            .view_fn_with_state(args, &EdsErr::GetEdsBalance, None)
+            .view_fn_with_err(args, &EdsErr::GetEdsBalance, None)
             .await?;
         Ok(res.into())
     }
 
-    pub async fn view_fn_with_state<T: DeserializeOwned + Debug>(
+    pub async fn view_fn_with_err<T: DeserializeOwned + Debug>(
         &self,
         args: ViewFnArgs,
         code: &'static DynErrCode,
         ext_msg: Option<String>,
-    ) -> AppResult<ViewResponse<T>> {
+    ) -> AppResult<Response<T>> {
         let resp = self.rest_client().view_fun(args).await;
         let resp = if let Some(msg) = ext_msg {
             resp.map_err(map_err!(code, msg))?
@@ -149,17 +156,15 @@ impl BaseClient {
             resp.map_err(map_err!(code))?
         };
 
-        let state = resp.state().clone();
-        let (_, lps): (u8, T) = resp.into_inner();
-        Ok(ViewResponse::new(state, lps))
+        Ok(resp)
     }
 
-    pub async fn entry_fn_with_gas_txn(
+    pub async fn entry_fn_with_wait_txn(
         &self,
         args: EntryFnArgs<'_>,
         gas_used: Option<u64>,
         code: &'static DynErrCode,
-    ) -> AppResult<ViewResponse<Transaction>> {
+    ) -> AppResult<Response<Transaction>> {
         let fn_name = args.fn_name;
         let mut overrides = None;
         if let Some(gas_used) = gas_used {
@@ -179,21 +184,17 @@ impl BaseClient {
             .map_err(map_err!(code, format!("function[{fn_name}]")))?
             .into_inner();
 
-        info!("entry_fn[{fn_name}] pending_tx: {}", pending_tx.hash);
+        info!("entry_fn[{fn_name}] pending_tx_hash: {}", pending_tx.hash);
         self.wait_for_txn(&pending_tx).await
     }
 
     pub async fn wait_for_txn(
         &self,
         pending_tx: &PendingTransaction,
-    ) -> AppResult<ViewResponse<Transaction>> {
-        let resp = self
-            .client
+    ) -> AppResult<Response<Transaction>> {
+        self.client
             .wait_for_transaction(pending_tx)
             .await
-            .map_err(map_err!(&EdsErr::WaitForTxnErr))?;
-
-        let state = resp.state().clone();
-        Ok(ViewResponse::new(state, resp.into_inner()))
+            .map_err(map_err!(&EdsErr::WaitForTxnErr))
     }
 }
