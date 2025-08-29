@@ -1,6 +1,45 @@
+use crate::utils::bcs_ext::BcsExt;
+use base_infra::result::AppResult;
+use endless_sdk::move_types::account_address::AccountAddress;
 use endless_sdk::rest_client::Response;
 use endless_sdk::rest_client::endless_api_types::IndexResponse;
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy)]
+pub struct Owner(AccountAddress);
+impl Owner {
+    pub fn new(addr: &AccountAddress) -> Self {
+        Self(*addr)
+    }
+
+    pub fn to_bytes(&self) -> AppResult<Vec<u8>> {
+        self.0.to_bytes()
+    }
+}
+
+impl From<Owner> for AccountAddress {
+    fn from(owner: Owner) -> Self {
+        owner.0
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Token(AccountAddress);
+impl Token {
+    pub fn new(addr: &AccountAddress) -> Self {
+        Self(*addr)
+    }
+
+    pub fn to_bytes(&self) -> AppResult<Vec<u8>> {
+        self.0.to_bytes()
+    }
+}
+
+impl From<Token> for AccountAddress {
+    fn from(token: Token) -> Self {
+        token.0
+    }
+}
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct IndexData {

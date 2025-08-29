@@ -138,7 +138,7 @@ impl EnhancedClient {
 
         Ok(resp)
     }
-    pub async fn view_fn_res<T: DeserializeOwned + Debug>(
+    pub async fn view_fn_inner<T: DeserializeOwned + Debug>(
         &self,
         args: ViewFnArgs,
         code: &'static DynErrCode,
