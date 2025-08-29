@@ -1,3 +1,4 @@
+pub mod account_client;
 pub mod types;
 
 use crate::client::types::IndexData;
@@ -35,6 +36,10 @@ impl EnhancedClient {
         Ok(Self {
             client: Client::new(node_url),
         })
+    }
+
+    pub fn get_client(&self) -> &Client {
+        &self.client
     }
 
     pub fn rest_client(&self) -> RestClient<'_> {
@@ -118,31 +123,6 @@ impl EnhancedClient {
         self.rest_client().entry_fun(fn_args).await
     }
 
-    pub async fn get_token_balance(
-        &self,
-        owner: AccountAddress,
-        token: AccountAddress,
-    ) -> AppResult<Response<u128>> {
-        let args = vec![owner.to_bytes()?, token.to_bytes()?];
-        let t_args = vec!["0x1::fungible_asset::Metadata"];
-        let (mun, fun) = ("primary_fungible_store", "balance");
-
-        let args = ViewFnArgs::new(AccountAddress::ONE, mun, fun, args, t_args)?;
-        let res = self
-            .view_fn_with_err(args, &EdsErr::GetTokenBalance, None)
-            .await?;
-        Ok(res.into())
-    }
-
-    pub async fn balance_of(&self, owner: &AccountAddress) -> AppResult<Response<u128>> {
-        let (args, t_args) = (vec![owner.to_bytes()?], vec![]);
-        let args = ViewFnArgs::new(AccountAddress::ONE, "endless_coin", "balance", args, t_args)?;
-        let res = self
-            .view_fn_with_err(args, &EdsErr::GetEdsBalance, None)
-            .await?;
-        Ok(res.into())
-    }
-
     pub async fn view_fn_with_err<T: DeserializeOwned + Debug>(
         &self,
         args: ViewFnArgs,
@@ -157,6 +137,16 @@ impl EnhancedClient {
         };
 
         Ok(resp)
+    }
+    pub async fn view_fn_res<T: DeserializeOwned + Debug>(
+        &self,
+        args: ViewFnArgs,
+        code: &'static DynErrCode,
+        ext_msg: Option<String>,
+    ) -> AppResult<T> {
+        let resp = self.view_fn_with_err(args, code, ext_msg).await?;
+        let (_, inner): (u8, T) = resp.into_inner();
+        Ok(inner)
     }
 
     pub async fn entry_fn_with_wait_txn(
