@@ -1,7 +1,7 @@
 pub mod account_client;
 pub mod types;
 
-use crate::client::types::IndexData;
+use crate::client::types::{IndexData, Token};
 use crate::error::EdsErr;
 use crate::sdk_ext::rest_client::RestClient;
 use crate::sdk_ext::types::{EntryFnArgs, ViewFnArgs};
@@ -21,7 +21,7 @@ use url::Url;
 
 #[derive(Clone)]
 pub struct EnhancedClient {
-    pub client: Client,
+    client: Client,
 }
 
 impl EnhancedClient {
@@ -55,19 +55,40 @@ impl EnhancedClient {
         Ok(res.into())
     }
 
+    pub async fn faucet(
+        &self,
+        signer: &LocalAccount,
+        receiver: AccountAddress,
+        overrides: Option<Overrides>,
+    ) -> AppResult<Response<PendingTransaction>> {
+        let (mn, fun, args) = ("faucet", "fund", vec![receiver.to_bytes()?]);
+        let fn_args = EntryFnArgs::new(signer, AccountAddress::ONE, mn, fun, args, vec![])?
+            .with_overrides(overrides);
+        self.rest_client().entry_fun(fn_args).await
+    }
+
+    pub async fn faucet_wait_txn(
+        &self,
+        signer: &LocalAccount,
+        receiver: AccountAddress,
+        overrides: Option<Overrides>,
+    ) -> AppResult<Response<Transaction>> {
+        let res = self.faucet(signer, receiver, overrides).await?;
+        self.wait_for_txn(res.inner()).await
+    }
+
     pub async fn simulate_transfer(
         &self,
-        from_account: &LocalAccount,
-        to_account: AccountAddress,
+        from: &LocalAccount,
+        to: AccountAddress,
         amount: u128,
         overrides: Option<Overrides>,
     ) -> AppResult<Response<Vec<UserTransaction>>> {
-        let args = vec![to_account.to_bytes()?, amount.to_bytes()?];
-        let (mn, fun, owner) = ("endless_account", "transfer", from_account);
+        let args = vec![to.to_bytes()?, amount.to_bytes()?];
+        let (mn, fun, owner) = ("endless_account", "transfer", from);
 
         let fn_args = EntryFnArgs::new(owner, AccountAddress::ONE, mn, fun, args, vec![])?
             .with_overrides(overrides);
-
         self.rest_client().simulate_fun(fn_args).await
     }
 
@@ -83,8 +104,18 @@ impl EnhancedClient {
 
         let fn_args = EntryFnArgs::new(owner, AccountAddress::ONE, mn, fun, args, vec![])?
             .with_overrides(overrides);
-
         self.rest_client().entry_fun(fn_args).await
+    }
+
+    pub async fn transfer_wait_txn(
+        &self,
+        from: &LocalAccount,
+        to: AccountAddress,
+        amount: u128,
+        overrides: Option<Overrides>,
+    ) -> AppResult<Response<Transaction>> {
+        let res = self.transfer(from, to, amount, overrides).await?;
+        self.wait_for_txn(res.inner()).await
     }
 
     pub async fn simulate_transfer_token(
@@ -101,7 +132,6 @@ impl EnhancedClient {
 
         let fn_args = EntryFnArgs::new(owner, AccountAddress::ONE, mn, fun, args, t_args)?
             .with_overrides(overrides);
-
         self.rest_client().simulate_fun(fn_args).await
     }
 
@@ -110,7 +140,7 @@ impl EnhancedClient {
         from: &LocalAccount,
         to: AccountAddress,
         amount: u128,
-        token: AccountAddress,
+        token: Token,
         overrides: Option<Overrides>,
     ) -> AppResult<Response<PendingTransaction>> {
         let args = vec![to.to_bytes()?, amount.to_bytes()?, token.to_bytes()?];
@@ -121,6 +151,20 @@ impl EnhancedClient {
             .with_overrides(overrides);
 
         self.rest_client().entry_fun(fn_args).await
+    }
+
+    pub async fn transfer_token_wait_txn(
+        &self,
+        from: &LocalAccount,
+        to: AccountAddress,
+        amount: u128,
+        token: Token,
+        overrides: Option<Overrides>,
+    ) -> AppResult<Response<Transaction>> {
+        let res = self
+            .transfer_token(from, to, amount, token, overrides)
+            .await?;
+        self.wait_for_txn(res.inner()).await
     }
 
     pub async fn view_fn_with_err<T: DeserializeOwned + Debug>(
@@ -155,7 +199,7 @@ impl EnhancedClient {
         gas_used: Option<u64>,
         code: &'static DynErrCode,
     ) -> AppResult<Response<Transaction>> {
-        let fn_name = args.fn_name;
+        let fn_name = args.fn_name.clone();
         let mut overrides = None;
         if let Some(gas_used) = gas_used {
             let max_gas_amount = gas_used + 100;

@@ -22,3 +22,5 @@ async-trait.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
+rand_core = "=0.5.1"
+rand = "=0.7.3"

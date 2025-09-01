@@ -34,7 +34,7 @@ pub struct EntryFnArgs<'a> {
     pub signer: &'a LocalAccount,
     pub entry_fn: EntryFunction,
     pub overrides: Option<Overrides>,
-    pub fn_name: &'a str,
+    pub fn_name: String,
 }
 
 impl<'a> EntryFnArgs<'a> {
@@ -46,6 +46,7 @@ impl<'a> EntryFnArgs<'a> {
         args: Vec<Vec<u8>>,
         type_args: Vec<&'a str>,
     ) -> AppResult<Self> {
+        let fn_name = format!("{module_name}::{function_name}");
         let module_name = Identifier::new(module_name).map_err(map_err!(
             &EdsErr::ParseIdentifier,
             format!("from module {module_name}")
@@ -65,7 +66,7 @@ impl<'a> EntryFnArgs<'a> {
             signer,
             entry_fn,
             overrides: None,
-            fn_name: function_name,
+            fn_name,
         })
     }
 

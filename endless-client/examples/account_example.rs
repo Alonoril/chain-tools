@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     // recover account
     let mut account = test_recover_account()?;
 
-    // create client
+    // new client
     let client = EnhancedClient::new_with_url_str("https://rpc-test.endless.link/v1")?;
 
     // set last sequence number

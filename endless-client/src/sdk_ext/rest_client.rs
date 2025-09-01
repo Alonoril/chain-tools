@@ -67,6 +67,7 @@ impl<'a> RestClient<'a> {
         &self,
         args: EntryFnArgs<'a>,
     ) -> AppResult<Response<PendingTransaction>> {
+        let fn_name = args.fn_name;
         let chain_id = self.get_chain_id().await?;
         let overrides = args.overrides.unwrap_or_default();
 
@@ -83,10 +84,10 @@ impl<'a> RestClient<'a> {
             .gas_unit_price(overrides.gas_unit_price);
 
         let signed_txn = args.signer.sign_with_transaction_builder(txn_builder);
-        self.client
-            .submit(&signed_txn)
-            .await
-            .map_err(map_err!(&EdsErr::SubmitTxnErr))
+        self.client.submit(&signed_txn).await.map_err(map_err!(
+            &EdsErr::SubmitTxnErr,
+            format!("function[{fn_name}]")
+        ))
     }
 
     pub async fn view_fun<T: DeserializeOwned>(
