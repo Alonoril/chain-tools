@@ -122,8 +122,8 @@ impl EnhancedClient {
         &self,
         from: &LocalAccount,
         to: AccountAddress,
+        token: Token,
         amount: u128,
-        token: AccountAddress,
         overrides: Option<Overrides>,
     ) -> AppResult<Response<Vec<UserTransaction>>> {
         let args = vec![to.to_bytes()?, amount.to_bytes()?, token.to_bytes()?];
@@ -139,8 +139,8 @@ impl EnhancedClient {
         &self,
         from: &LocalAccount,
         to: AccountAddress,
-        amount: u128,
         token: Token,
+        amount: u128,
         overrides: Option<Overrides>,
     ) -> AppResult<Response<PendingTransaction>> {
         let args = vec![to.to_bytes()?, amount.to_bytes()?, token.to_bytes()?];
@@ -157,12 +157,12 @@ impl EnhancedClient {
         &self,
         from: &LocalAccount,
         to: AccountAddress,
-        amount: u128,
         token: Token,
+        amount: u128,
         overrides: Option<Overrides>,
     ) -> AppResult<Response<Transaction>> {
         let res = self
-            .transfer_token(from, to, amount, token, overrides)
+            .transfer_token(from, to, token, amount, overrides)
             .await?;
         self.wait_for_txn(res.inner()).await
     }
