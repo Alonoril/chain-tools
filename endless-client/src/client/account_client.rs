@@ -115,7 +115,7 @@ impl AcctClientTrait for EnhancedClient {
     async fn get_sequence_number(&self, account: &AccountAddress) -> AppResult<u64> {
         let (mn, fun, args) = ("account", "get_sequence_number", vec![account.to_bytes()?]);
         let args = ViewFnArgs::new(AccountAddress::ONE, mn, fun, args, vec![])?;
-        self.view_fn_inner(args, &EdsErr::GetAcctSeqNum, None).await
+        self.view_fn(args, &EdsErr::GetAcctSeqNum, None).await
     }
 
     async fn set_latest_sequence_number(&self, account: &mut LocalAccount) -> AppResult<()> {
@@ -127,7 +127,7 @@ impl AcctClientTrait for EnhancedClient {
     async fn balance_of(&self, owner: Owner) -> AppResult<u128> {
         let (args, t_args) = (vec![owner.to_bytes()?], vec![]);
         let args = ViewFnArgs::new(AccountAddress::ONE, "endless_coin", "balance", args, t_args)?;
-        self.view_fn_inner(args, &EdsErr::EdsBalanceOf, None).await
+        self.view_fn(args, &EdsErr::EdsBalanceOf, None).await
     }
 
     async fn token_balance_of(&self, owner: Owner, token: Token) -> AppResult<u128> {
@@ -136,7 +136,7 @@ impl AcctClientTrait for EnhancedClient {
         let (mun, fun) = ("primary_fungible_store", "balance");
 
         let args = ViewFnArgs::new(AccountAddress::ONE, mun, fun, args, t_args)?;
-        self.view_fn_inner(args, &EdsErr::TokenBalanceOf, None)
+        self.view_fn(args, &EdsErr::TokenBalanceOf, None)
             .await
     }
 

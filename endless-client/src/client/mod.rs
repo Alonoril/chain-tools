@@ -54,7 +54,7 @@ impl EnhancedClient {
             .map_err(map_err!(&EdsErr::GetVersionErr))?;
         Ok(res.into())
     }
-    
+
     pub async fn view_fn_with_err<T: DeserializeOwned + Debug>(
         &self,
         args: ViewFnArgs,
@@ -70,7 +70,8 @@ impl EnhancedClient {
 
         Ok(resp)
     }
-    pub async fn view_fn_inner<T: DeserializeOwned + Debug>(
+
+    pub async fn view_fn<T: DeserializeOwned + Debug>(
         &self,
         args: ViewFnArgs,
         code: &'static DynErrCode,
@@ -81,7 +82,7 @@ impl EnhancedClient {
         Ok(inner)
     }
 
-    pub async fn entry_fn_with_wait_txn(
+    pub async fn entry_fn_wait_txn(
         &self,
         args: EntryFnArgs<'_>,
         gas_used: Option<u64>,
