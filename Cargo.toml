@@ -31,7 +31,9 @@ async-trait = "0.1"
 move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
 endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
 bcs = { git = "https://github.com/aptos-labs/bcs.git", rev = "18f1688c5d32026e68b410420671c6b146c3f639" }
-
+bip39 = "2"
+ed25519-dalek-bip32 = "0.3"
+rand = "0.8"
 
 [patch.crates-io]
 merlin = { git = "https://github.com/aptos-labs/merlin" }

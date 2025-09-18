@@ -2,15 +2,12 @@ use crate::endless::error::EdsWltErr;
 use base_infra::result::AppResult;
 use base_infra::{else_err, map_err};
 use bip39::{Language, Mnemonic};
-use ed25519_dalek_bip32::{ChildIndex, ExtendedSecretKey};
+use ed25519_dalek_bip32::{DerivationPath, ExtendedSigningKey};
 use endless_sdk::crypto::ed25519::{Ed25519PrivateKey, Ed25519PublicKey};
 use endless_sdk::move_types::account_address::AccountAddress;
 use endless_sdk::types::transaction::authenticator::AuthenticationKey;
 use std::convert::TryFrom;
-
-const APTOS_COIN_TYPE: u32 = 637;
-const HARDENED_PATH_PREFIX: [u32; 4] = [44, APTOS_COIN_TYPE, 0, 0];
-
+use std::str::FromStr;
 /// Generated wallet information derived from a mnemonic phrase.
 #[derive(Debug)]
 pub struct MnemonicWallet {
@@ -48,7 +45,7 @@ impl MnemonicWallet {
 
 /// Helper for repeatedly deriving wallets from the same mnemonic.
 pub struct MnemonicWalletGenerator {
-    root: ExtendedSecretKey,
+    root: ExtendedSigningKey,
 }
 
 impl MnemonicWalletGenerator {
@@ -62,7 +59,8 @@ impl MnemonicWalletGenerator {
         let mnemonic = Mnemonic::parse_in_normalized(Language::English, phrase)
             .map_err(map_err!(&EdsWltErr::InvalidMnemonic))?;
         let seed = mnemonic.to_seed(passphrase);
-        let root = ExtendedSecretKey::from_seed(&seed).map_err(map_err!(&EdsWltErr::SeedDerive))?;
+        let root =
+            ExtendedSigningKey::from_seed(&seed).map_err(map_err!(&EdsWltErr::SeedDerive))?;
         Ok(Self { root })
     }
 
@@ -93,13 +91,17 @@ impl MnemonicWalletGenerator {
     }
 
     fn derive_wallet_from_root(&self, index: u32) -> AppResult<MnemonicWallet> {
-        let path = derivation_path(index);
+        // Check if index is within valid range for BIP32 (must be < 2^31)
+        if index >= 2_147_483_648 {
+            return Err((&EdsWltErr::IndexOverflow).into());
+        }
+        let path = derivation_path(index)?;
         let child = self
             .root
             .derive(&path)
             .map_err(map_err!(&EdsWltErr::ChildDerive))?;
 
-        let secret = child.secret_key.to_bytes();
+        let secret = child.signing_key.to_bytes();
         let private_key = Ed25519PrivateKey::try_from(secret.as_ref())
             .map_err(map_err!(&EdsWltErr::PrivateKey))?;
 
@@ -145,14 +147,10 @@ pub fn batch_derive_wallet_with_passphrase(
         .derive_wallets(start_index, count)
 }
 
-fn derivation_path(index: u32) -> [ChildIndex; 5] {
-    [
-        ChildIndex::Hardened(HARDENED_PATH_PREFIX[0]),
-        ChildIndex::Hardened(HARDENED_PATH_PREFIX[1]),
-        ChildIndex::Hardened(HARDENED_PATH_PREFIX[2]),
-        ChildIndex::Hardened(HARDENED_PATH_PREFIX[3]),
-        ChildIndex::Hardened(index),
-    ]
+fn derivation_path(index: u32) -> AppResult<DerivationPath> {
+    // Use proper BIP32 derivation path format: m/44'/637'/0'/0'/index'
+    DerivationPath::from_str(&format!("m/44'/637'/0'/0'/{}'", index))
+        .map_err(map_err!(&EdsWltErr::DerivationPath))
 }
 
 #[cfg(test)]
@@ -191,9 +189,7 @@ mod tests {
         match err {
             AppError::ErrCode(code) | AppError::Anyhow(code, _) => {
                 assert_eq!(code.code(), "WLT005")
-            }
-            #[cfg(feature = "http")]
-            AppError::HttpErr(code, _) => assert_eq!(code.code(), "WLT005"),
+            } // AppError::HttpErr(code, _) => assert_eq!(code.code(), "WLT005"),
         }
     }
 }

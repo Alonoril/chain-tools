@@ -5,5 +5,6 @@ base_infra::gen_impl_code_enum! {
         ChildDerive = ("WLT003", "Failed to derive child private key"),
         PrivateKey = ("WLT004", "Failed to convert child key into Endless private key"),
         IndexOverflow = ("WLT005", "Mnemonic derivation index overflow"),
+        DerivationPath = ("WLT006", "Failed to derive child key derivation path"),
     }
 }

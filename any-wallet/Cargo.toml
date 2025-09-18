@@ -8,9 +8,11 @@ repository.workspace = true
 
 [dependencies]
 base-infra = { workspace = true, features = ["tokio"] }
-bip39 = "2"
-ed25519-dalek-bip32 = "0.2"
-endless-sdk = { workspace = true }
-hex = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
+
+bip39.workspace = true
+ed25519-dalek-bip32.workspace = true
+endless-sdk.workspace = true
+hex.workspace = true
+rand.workspace = true
