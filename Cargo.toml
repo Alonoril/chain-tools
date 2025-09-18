@@ -7,7 +7,7 @@ repository = "https://github.com/Alonoril/chain-tools"
 
 [workspace]
 resolver = "2"
-members = [
+members = [ "any-wallet",
     "endless-client"
 ]
 

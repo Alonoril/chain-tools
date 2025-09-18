@@ -1,0 +1,16 @@
+[package]
+name = "any-wallet"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra = { workspace = true, features = ["tokio"] }
+bip39 = "2"
+ed25519-dalek-bip32 = "0.2"
+endless-sdk = { workspace = true }
+hex = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }

@@ -136,8 +136,7 @@ impl AcctClientTrait for EnhancedClient {
         let (mun, fun) = ("primary_fungible_store", "balance");
 
         let args = ViewFnArgs::new(AccountAddress::ONE, mun, fun, args, t_args)?;
-        self.view_fn(args, &EdsErr::TokenBalanceOf, None)
-            .await
+        self.view_fn(args, &EdsErr::TokenBalanceOf, None).await
     }
 
     async fn faucet(
