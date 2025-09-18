@@ -1,9 +1,8 @@
-use any_wallet::{
-    MnemonicWallet, MnemonicWalletGenerator, derive_wallet_batch,
-    derive_wallet_batch_with_passphrase, derive_wallet_with_passphrase,
+use any_wallet::endless::mnemonic::{
+    MnemonicWallet, MnemonicWalletGenerator, batch_derive_wallet,
+    batch_derive_wallet_with_passphrase, derive_wallet_with_passphrase,
 };
 use base_infra::result::AppResult;
-// use bip39::{Language, Mnemonic}; // Not needed for this example
 use hex::encode as hex_encode;
 use std::env;
 
@@ -24,7 +23,7 @@ fn main() -> AppResult<()> {
     print_wallet(&first_wallet);
 
     println!("\n-- Batch derivation using the same mnemonic --");
-    let batch = derive_wallet_batch_with_passphrase(&phrase, &passphrase, 1, 4)?;
+    let batch = batch_derive_wallet_with_passphrase(&phrase, &passphrase, 1, 4)?;
     for wallet in &batch {
         print_wallet(wallet);
     }
@@ -43,7 +42,7 @@ fn main() -> AppResult<()> {
 
     // Bulk derivations
     let count = 16usize;
-    let wallets = derive_wallet_batch(&phrase, 0, count)?;
+    let wallets = batch_derive_wallet(&phrase, 0, count)?;
     println!("\nDerived {count} wallets starting from index 0 using empty passphrase");
     println!(
         "First derived address: {}",
@@ -55,7 +54,7 @@ fn main() -> AppResult<()> {
 }
 
 fn print_wallet(wallet: &MnemonicWallet) {
-    let addr = wallet.account_address().to_hex_literal();
+    let addr = wallet.account_address().to_bs58_string();
     let auth_key_hex = hex_encode(wallet.authentication_key().to_vec());
     let private_key_hex = hex_encode(wallet.private_key().to_bytes());
     println!(
