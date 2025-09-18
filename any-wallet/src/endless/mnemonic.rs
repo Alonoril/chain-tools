@@ -149,8 +149,8 @@ pub fn batch_derive_wallet_with_passphrase(
 }
 
 fn derivation_path(index: u32) -> AppResult<DerivationPath> {
-    // Use proper BIP32 derivation path format: m/44'/637'/0'/0/index'
-    DerivationPath::from_str(&format!("m/44'/637'/0'/0/{}", index))
+    // Use proper BIP32 derivation path format: m/44'/637'/0'/0'/index'
+    DerivationPath::from_str(&format!("m/44'/637'/0'/0'/{}'", index))
         .map_err(map_err!(&EdsWltErr::DerivationPath))
 }
 
