@@ -5,9 +5,11 @@ use bip39::{Language, Mnemonic};
 use ed25519_dalek_bip32::{DerivationPath, ExtendedSigningKey};
 use endless_sdk::crypto::ed25519::{Ed25519PrivateKey, Ed25519PublicKey};
 use endless_sdk::move_types::account_address::AccountAddress;
+use endless_sdk::types::LocalAccount;
 use endless_sdk::types::transaction::authenticator::AuthenticationKey;
 use std::convert::TryFrom;
 use std::str::FromStr;
+
 /// Generated wallet information derived from a mnemonic phrase.
 #[derive(Debug)]
 pub struct MnemonicWallet {
@@ -40,6 +42,11 @@ impl MnemonicWallet {
     /// Computes the authentication key corresponding to the private key.
     pub fn authentication_key(&self) -> AuthenticationKey {
         AuthenticationKey::ed25519(&self.public_key)
+    }
+
+    /// Consumes the wallet and returns a local account.
+    pub fn to_local_account(self) -> LocalAccount {
+        LocalAccount::new(self.account_address(), self.into_private_key(), 0)
     }
 }
 
@@ -150,7 +157,7 @@ pub fn batch_derive_wallet_with_passphrase(
 
 fn derivation_path(index: u32) -> AppResult<DerivationPath> {
     // Use proper BIP32 derivation path format: m/44'/637'/0'/0'/index'
-    DerivationPath::from_str(&format!("m/44'/637'/0'/0'/{}'", index))
+    DerivationPath::from_str(&format!("m/44'/637'/{}'/0'/0'", index))
         .map_err(map_err!(&EdsWltErr::DerivationPath))
 }
 
