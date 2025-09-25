@@ -100,13 +100,8 @@ impl EnhancedClient {
         }
 
         let fn_args = args.with_overrides(overrides);
-        let pending_tx = self
-            .rest_client()
-            .entry_fun(fn_args)
-            .await
-            .map_err(map_err!(code, format!("function[{fn_name}]")))?
-            .into_inner();
-
+        let pending_tx = self.rest_client().entry_fun(fn_args).await?.into_inner();
+        // .map_err(map_err!(code))?
         info!("entry_fn[{fn_name}] pending_tx_hash: {}", pending_tx.hash);
         self.wait_for_txn(&pending_tx).await
     }
