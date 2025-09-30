@@ -115,7 +115,7 @@ impl ViewFnArgs {
 
 fn parse_type_tag(s: &str) -> AppResult<TypeTag> {
     s.parse::<TypeTag>()
-        .map_err(map_err!(&EdsErr::ParseTypeArgs, s.to_string()))
+        .map_err(map_err!(&EdsErr::ParseTypeArgs, s))
 }
 
 fn parse_type_tags(s: Vec<&str>) -> AppResult<Vec<TypeTag>> {

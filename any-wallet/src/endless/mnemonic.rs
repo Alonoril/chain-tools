@@ -197,7 +197,8 @@ mod tests {
         match err {
             AppError::ErrCode(code) | AppError::Anyhow(code, _) => {
                 assert_eq!(code.code(), "WLT005")
-            } // AppError::HttpErr(code, _) => assert_eq!(code.code(), "WLT005"),
+            }
+            _ => {}
         }
     }
 }

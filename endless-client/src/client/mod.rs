@@ -82,7 +82,6 @@ impl EnhancedClient {
         &self,
         args: EntryFnArgs<'_>,
         gas_used: Option<u64>,
-        code: &'static DynErrCode,
     ) -> AppResult<Response<Transaction>> {
         let fn_name = args.fn_name.clone();
         let mut overrides = None;
