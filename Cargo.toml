@@ -7,7 +7,9 @@ repository = "https://github.com/Alonoril/chain-tools"
 
 [workspace]
 resolver = "2"
-members = ["any-wallet",
+members = [
+    "any-types",
+    "any-wallet",
     "endless-client"
 ]
 
@@ -23,6 +25,14 @@ moka = { version = "0.12", features = ["future"] }
 hex = "0.4"
 url = "2"
 async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+
+bigdecimal = "0.4"
+num-bigint = "0.4"
+num-traits = "0.2"
+
+# evm
+alloy-primitives = "=1.4"
 
 # endless
 move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
