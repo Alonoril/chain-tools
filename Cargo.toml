@@ -12,7 +12,7 @@ members = ["any-wallet",
 ]
 
 [workspace.dependencies]
-base-infra = { git = "https://github.com/alonoril/infra-rs", rev = "d99c6dd" }
+base-infra = { git = "https://github.com/alonoril/infra-rs", rev = "3ac7908" }
 
 tokio = { version = "1" }
 serde = { version = "1", features = ["derive"] }
