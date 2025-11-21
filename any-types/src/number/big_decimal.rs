@@ -8,6 +8,10 @@ use num_bigint::{BigInt, BigUint, Sign};
 use std::str::FromStr;
 
 pub trait ToBigDec {
+    /// If the floating-point number (f32, f64)
+    /// or the large string floating-point number are converted to BigDecimal,
+    /// the actual accuracy of the float is subject to the actual accuracy of the floating point number,
+    /// and the parameters decimals are ignored
     fn to_big_dec(self, decimals: u8) -> AppResult<BigDecimal>;
 }
 
@@ -36,17 +40,15 @@ impl ToBigDec for u64 {
 }
 
 impl ToBigDec for f64 {
-    fn to_big_dec(self, dec: u8) -> AppResult<BigDecimal> {
+    fn to_big_dec(self, _dec: u8) -> AppResult<BigDecimal> {
         // let val = BigDecimal::from_f64(self).ok_or(app_err!(&TypErr::F64ToBigDecErr))?;
-        let val = BigDecimal::try_from(self).map_err(map_err!(&TypErr::F64ToBigDecErr))?;
-        Ok(val.round(dec as i64))
+        BigDecimal::try_from(self).map_err(map_err!(&TypErr::F64ToBigDecErr))
     }
 }
 
 impl ToBigDec for f32 {
-    fn to_big_dec(self, dec: u8) -> AppResult<BigDecimal> {
-        let val = BigDecimal::try_from(self).map_err(map_err!(&TypErr::F32ToBigDecErr))?;
-        Ok(val.round(dec as i64))
+    fn to_big_dec(self, _dec: u8) -> AppResult<BigDecimal> {
+        BigDecimal::try_from(self).map_err(map_err!(&TypErr::F32ToBigDecErr))
     }
 }
 
@@ -285,5 +287,4 @@ mod tests {
         println!("value: {value:?}");
         assert_eq!(value.to_string(), val);
     }
-
 }
