@@ -52,6 +52,11 @@ impl ToBigDec for f32 {
 
 impl ToBigDec for &str {
     fn to_big_dec(self, decimals: u8) -> AppResult<BigDecimal> {
+        if self.find('.').is_some() {
+            let msg = format!("`String` value[{self}]");
+            return BigDecimal::from_str(self).map_err(map_err!(&TypErr::BigDecFromStr, msg));
+        }
+
         let val = U256::from_str(self).map_err(map_err!(&TypErr::U256FromStr))?;
         val.to_big_dec(decimals)
     }
@@ -272,4 +277,13 @@ mod tests {
             DecimalConvertError::Overflow
         );
     }
+
+    #[test]
+    fn str_big_decimal_to_big_decimal() {
+        let val = "573994446227.2625155503857009566842";
+        let value = val.to_big_dec(24).unwrap();
+        println!("value: {value:?}");
+        assert_eq!(value.to_string(), val);
+    }
+
 }

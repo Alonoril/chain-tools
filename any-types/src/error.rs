@@ -19,6 +19,8 @@ base_infra::gen_impl_code_enum! {
         F32ToBigDecErr = ("DEC007", "Failed to parse decimal from f32"),
         F64ToBigDecErr = ("DEC008", "Failed to parse decimal from f64"),
         U256FromStr = ("DEC009", "Failed to parse string to U256"),
+        // str to BigDecimal
+        BigDecFromStr = ("DEC010", "Failed to parse string to BigDecimal"),
 
         // bcs
         ToBcsBytes = ("BCS000", "Failed to convert to bcs bytes"),
