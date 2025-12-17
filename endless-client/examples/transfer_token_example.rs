@@ -2,8 +2,8 @@ use base_infra::result::AppResult;
 use endless_client::client::EnhancedClient;
 use endless_client::client::account_client::AcctClientTrait;
 use endless_client::client::types::{Owner, Token};
-use endless_client::utils::account_ext::ToAccountAddress;
 use endless_sdk::types::LocalAccount;
+use chain_types::endless::eds_addr_ext::ToEdsAddr;
 
 async fn test_recover_account(client: &EnhancedClient) -> AppResult<LocalAccount> {
     let account = client
@@ -23,9 +23,9 @@ async fn main() -> anyhow::Result<()> {
     let signer = test_recover_account(&client).await?;
     println!("owner address: {}", signer.address().to_bs58_string());
     let owner = Owner::new(&signer.address());
-    let usdt = "USDH437BQjeVRzACuLiJQ6Bc9WaBSe1tWxcaNtJoa1s".to_account_address()?;
+    let usdt = "USDH437BQjeVRzACuLiJQ6Bc9WaBSe1tWxcaNtJoa1s".to_eds_addr()?;
     let usdt_token = Token::new(&usdt);
-    let receiver = "AKe6can1eJW6sZ7WsTkK8pNVxheeQHMEe8VX81Cu4bJT".to_account_address()?;
+    let receiver = "AKe6can1eJW6sZ7WsTkK8pNVxheeQHMEe8VX81Cu4bJT".to_eds_addr()?;
 
     //simulate_transfer_token
     let res = client

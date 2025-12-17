@@ -1,9 +1,9 @@
 use base_infra::result::AppResult;
+use chain_types::endless::eds_addr_ext::ToEdsAddr;
 use endless_client::client::EnhancedClient;
 use endless_client::client::account_client::AcctClientTrait;
 use endless_client::client::types::{Owner, Token};
 use endless_client::sdk_ext::account::LocalAccountExt;
-use endless_client::utils::account_ext::ToAccountAddress;
 use endless_sdk::crypto::SigningKey;
 use endless_sdk::crypto::hash::CryptoHash;
 use endless_sdk::crypto::test_utils::TestEndlessCrypto;
@@ -44,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
     println!("EDS balance: {}", balance);
 
     // Token balance
-    let usdc = "8iSN2eUjbHV9jq5TLtBQYU4tLozcLnSGiN4HFy4u9WZw".to_account_address()?;
+    let usdc = "8iSN2eUjbHV9jq5TLtBQYU4tLozcLnSGiN4HFy4u9WZw".to_eds_addr()?;
     let usdc_balance = client
         .token_balance_of(Owner::new(&account.address()), Token::new(&usdc))
         .await?;

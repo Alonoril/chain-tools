@@ -7,8 +7,6 @@ base_infra::gen_impl_code_enum! {
         GetAcctSeqNum = ("ACCT01", "Failed to get account sequence number"),
         InvalidHexPriKey = ("ACCT02", "Invalid hex private key"),
         ParseToEd25519Sk = ("ACCT03", "Failed to parse to ed25519 private key"),
-        AcctAddrParseErr = ("ACCT04", "Failed to parse to account address"),
-        InvalidAddrLen = ("ACCT05", "Invalid address length"),
 
         // client
         InvalidNodeUrl = ("CLT001", "Invalid endless node url"),

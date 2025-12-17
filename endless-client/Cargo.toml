@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 base-infra = { workspace = true }
+chain-types = { workspace = true, features = ["endless"] }
 
 anyhow.workspace = true
 tracing.workspace = true

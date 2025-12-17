@@ -1,9 +1,9 @@
 use base_infra::result::AppResult;
 use endless_client::client::EnhancedClient;
 use endless_client::sdk_ext::types::ViewFnArgs;
-use endless_client::utils::account_ext::ToAccountAddress;
 use endless_client::utils::bcs_ext::BcsExt;
 use endless_sdk::move_types::account_address::AccountAddress;
+use chain_types::endless::eds_addr_ext::ToEdsAddr;
 
 base_infra::gen_impl_code_enum! {
      TestErr {
@@ -14,11 +14,11 @@ base_infra::gen_impl_code_enum! {
 
 // unlocked_balance
 async fn test_unlocked_balance(client: &EnhancedClient) -> AppResult<()> {
-    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_account_address()?;
-    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_account_address()?;
+    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_eds_addr()?;
+    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_eds_addr()?;
     let args = vec![eds.to_bytes()?, recipient.to_bytes()?];
 
-    let mod_addr = "0x1".to_account_address()?;
+    let mod_addr = "0x1".to_eds_addr()?;
     let (mod_name, fn_name) = ("locking_coin_ex", "unlocked_balance");
     let args = ViewFnArgs::new(mod_addr, mod_name, fn_name, args, vec![])?;
     let res: u128 = client
@@ -43,11 +43,11 @@ struct UnlockInfo {
     unlock_list: Vec<UnlockAt>,
 }
 async fn test_get_unlock_info(client: &EnhancedClient) -> AppResult<()> {
-    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_account_address()?;
-    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_account_address()?;
+    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_eds_addr()?;
+    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_eds_addr()?;
     let args = vec![eds.to_bytes()?, recipient.to_bytes()?];
 
-    let mod_addr = "0x1".to_account_address()?;
+    let mod_addr = "0x1".to_eds_addr()?;
     let (mod_name, fn_name) = ("locking_coin_ex", "get_unlock_info");
     let args = ViewFnArgs::new(mod_addr, mod_name, fn_name, args, vec![])?;
     let res: UnlockInfo = client
@@ -79,14 +79,14 @@ async fn test_get_unlock_info(client: &EnhancedClient) -> AppResult<()> {
 // HWcPpjxKPsTwDbsGbzMj82jV4sb5RwHocGXsQ9tcF9sA
 
 async fn test_get_stakers_unlock_info(client: &EnhancedClient) -> AppResult<()> {
-    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_account_address()?;
+    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_eds_addr()?;
     let stakers = vec![
-        "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_account_address()?,
-        "HWcPpjxKPsTwDbsGbzMj82jV4sb5RwHocGXsQ9tcF9sA".to_account_address()?,
+        "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_eds_addr()?,
+        "HWcPpjxKPsTwDbsGbzMj82jV4sb5RwHocGXsQ9tcF9sA".to_eds_addr()?,
     ];
     let args = vec![eds.to_bytes()?, stakers.to_bytes()?];
 
-    let mod_addr = "0x1".to_account_address()?;
+    let mod_addr = "0x1".to_eds_addr()?;
     let (mod_name, fn_name) = ("locking_coin_ex", "get_stakers_unlock_info");
     let args = ViewFnArgs::new(mod_addr, mod_name, fn_name, args, vec![])?;
     let res: Vec<UnlockInfo> = client
@@ -98,11 +98,11 @@ async fn test_get_stakers_unlock_info(client: &EnhancedClient) -> AppResult<()> 
 
 // staking_amount
 async fn test_staking_amount(client: &EnhancedClient) -> AppResult<()> {
-    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_account_address()?;
-    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_account_address()?;
+    let eds = "ENDLESSsssssssssssssssssssssssssssssssssssss".to_eds_addr()?;
+    let recipient = "FUH7QsNDZmsFLEXrycR9pXQer2BSgGoUQ84b4RVJkWND".to_eds_addr()?;
     let args = vec![eds.to_bytes()?, recipient.to_bytes()?];
 
-    let mod_addr = "0x1".to_account_address()?;
+    let mod_addr = "0x1".to_eds_addr()?;
     let (mod_name, fn_name) = ("locking_coin_ex", "staking_amount");
     let args = ViewFnArgs::new(mod_addr, mod_name, fn_name, args, vec![])?;
     let res: u128 = client
