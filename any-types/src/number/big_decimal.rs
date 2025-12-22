@@ -86,7 +86,7 @@ impl BigDecToU128 for BigDecimal {
         big_decimal_to_u128(&self, decimals).map_err(map_err!(&TypErr::U128ToBigDec))
     }
 
-    // self.to_u128().ok_or_else(else_err!(&TypErr::BigDecToRsU128))
+    // self.to_u128().ok_or_else(nar_err!(&TypErr::BigDecToRsU128))
     fn to_chain_u128(&self) -> AppResult<u128> {
         self.to_scaled_u128().map(|e| e.to_u128())
     }

@@ -1,6 +1,6 @@
 use crate::endless::error::EdsWltErr;
 use base_infra::result::AppResult;
-use base_infra::{else_err, map_err};
+use base_infra::{nar_err, map_err};
 use bip39::{Language, Mnemonic};
 use ed25519_dalek_bip32::{DerivationPath, ExtendedSigningKey};
 use endless_sdk::crypto::ed25519::{Ed25519PrivateKey, Ed25519PublicKey};
@@ -92,7 +92,7 @@ impl MnemonicWalletGenerator {
 
         for offset in 0..count {
             let offset = u32::try_from(offset).map_err(map_err!(err))?;
-            let index = start_idx.checked_add(offset).ok_or_else(else_err!(err))?;
+            let index = start_idx.checked_add(offset).ok_or_else(nar_err!(err))?;
             wallets.push(self.derive_wallet_from_root(index)?);
         }
         Ok(wallets)
