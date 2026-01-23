@@ -17,7 +17,7 @@ members = [
 [workspace.dependencies]
 chain-types = { path = "chain-types" }
 
-base-infra = { git = "https://github.com/alonoril/infra-rs", rev = "d858b78" }
+base-infra = { git = "https://github.com/alonoril/infra-rs", rev = "e30a6ae" }
 
 tokio = { version = "1" }
 serde = { version = "1", features = ["derive"] }
