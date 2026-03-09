@@ -39,8 +39,12 @@ num-traits = "0.2"
 alloy-primitives = "=1.4"
 
 # endless
-move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
-endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", subdir = "framework/move-core-types" }
+endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git" }
+
+#move-core-types = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+#endless-sdk = { git = "https://github.com/endless-labs/endless-rust-sdk.git", branch = "main" }
+
 bcs = { git = "https://github.com/aptos-labs/bcs.git", rev = "18f1688c5d32026e68b410420671c6b146c3f639" }
 bip39 = "2"
 ed25519-dalek-bip32 = "0.3"
