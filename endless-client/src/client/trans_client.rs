@@ -87,8 +87,10 @@ impl EnhancedClient {
         &self,
         hash: H,
         filter_tags: Vec<MoveStructTag>,
-    ) -> AppResult<Vec<Event>> {
+    ) -> AppResult<Response<Vec<Event>>> {
         let tx = self.get_txn_by_hash(hash).await?;
-        tx.inner().filter_events_by_tags(filter_tags)
+        let (inner, state) = tx.into_parts();
+        let events = inner.filter_events_by_tags(filter_tags)?;
+        Ok(Response::new(events, state))
     }
 }
