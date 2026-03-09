@@ -8,11 +8,16 @@ base_infra::gen_impl_code_enum! {
         InvalidHexPriKey = ("ACCT02", "Invalid hex private key"),
         ParseToEd25519Sk = ("ACCT03", "Failed to parse to ed25519 private key"),
 
+        DecodeEventErr = ("EDS_SDK01", "Failed to decode event"),
+        InvalidModuleName = ("EDS_SDK02", "Invalid module name"),
+        InvalidEventName = ("EDS_SDK03", "Invalid module event name"),
+
         // client
         InvalidNodeUrl = ("CLT001", "Invalid endless node url"),
         GetVersionErr = ("CLT002", "get_endless_version failed"),
         TokenBalanceOf = ("CLT003", "Get primary_fungible_store::balance failed"),
         EdsBalanceOf = ("CLT004", "Get endless_coin::balance failed"),
+        ParseHashValue = ("CLT005", "Failed to parse to HashValue by"),
 
         GetIndexErr = ("SDK000", "Failed to get_index"),
         ParseIdentifier = ("SDK001", "Failed to parse to Identifier"),
@@ -22,6 +27,7 @@ base_infra::gen_impl_code_enum! {
         ViewBcsErr = ("SDK005", "Failed to view_bcs"),
         SimulateTxnErr = ("SDK006", "Failed to simulate transaction"),
         WaitForTxnErr = ("SDK007", "Failed to wait for transaction"),
+        GetTxnByHash = ("SDK008", "Failed to get transaction by hash"),
 
     }
 }

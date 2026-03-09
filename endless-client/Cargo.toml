@@ -15,11 +15,13 @@ tracing.workspace = true
 endless-sdk.workspace = true
 bcs.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 moka = { workspace = true, features = ["future", "sync"] }
 hex.workspace = true
 url.workspace = true
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
 async-trait.workspace = true
+
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

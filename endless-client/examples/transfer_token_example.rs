@@ -1,9 +1,9 @@
 use base_infra::result::AppResult;
+use chain_types::endless::eds_addr_ext::ToEdsAddr;
 use endless_client::client::EnhancedClient;
 use endless_client::client::account_client::AcctClientTrait;
 use endless_client::client::types::{Owner, Token};
 use endless_sdk::types::LocalAccount;
-use chain_types::endless::eds_addr_ext::ToEdsAddr;
 
 async fn test_recover_account(client: &EnhancedClient) -> AppResult<LocalAccount> {
     let account = client

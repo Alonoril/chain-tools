@@ -1,9 +1,9 @@
 use base_infra::result::AppResult;
+use chain_types::endless::eds_addr_ext::ToEdsAddr;
 use endless_client::client::EnhancedClient;
 use endless_client::sdk_ext::types::ViewFnArgs;
 use endless_client::utils::bcs_ext::BcsExt;
 use endless_sdk::move_types::account_address::AccountAddress;
-use chain_types::endless::eds_addr_ext::ToEdsAddr;
 
 base_infra::gen_impl_code_enum! {
      TestErr {

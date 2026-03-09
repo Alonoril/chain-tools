@@ -1,9 +1,12 @@
+use crate::error::EdsErr;
 use crate::utils::bcs_ext::BcsExt;
-use base_infra::result::AppResult;
+use base_infra::map_err;
+use base_infra::result::{AppError, AppResult};
 use endless_sdk::move_types::account_address::AccountAddress;
 use endless_sdk::rest_client::Response;
-use endless_sdk::rest_client::endless_api_types::IndexResponse;
+use endless_sdk::rest_client::endless_api_types::{HashValue, IndexResponse};
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Owner(AccountAddress);
@@ -62,5 +65,94 @@ impl From<Response<IndexResponse>> for IndexData {
             oldest_block_height: idx.oldest_block_height.0,
             block_height: idx.block_height.0,
         }
+    }
+}
+
+// #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+// pub enum TxHashVal {
+//     HashVal(HashValue),
+//     HashStr(String),
+// }
+
+/// A transaction hash wrapper that normalizes multiple caller inputs.
+pub struct TxHashVal(HashValue);
+
+/// Converts a caller-provided transaction hash into `HashValue`.
+pub trait TryIntoTxHashValue {
+    fn try_into_hash_value(self) -> AppResult<HashValue>;
+}
+
+impl From<TxHashVal> for HashValue {
+    fn from(val: TxHashVal) -> Self {
+        val.0
+    }
+}
+
+impl From<HashValue> for TxHashVal {
+    fn from(hash: HashValue) -> Self {
+        Self(hash)
+    }
+}
+
+impl TryIntoTxHashValue for HashValue {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        Ok(self)
+    }
+}
+
+impl TryIntoTxHashValue for &HashValue {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        Ok(*self)
+    }
+}
+
+impl TryIntoTxHashValue for TxHashVal {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        Ok(self.into())
+    }
+}
+
+impl TryIntoTxHashValue for &str {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        TxHashVal::try_from(self).map(Into::into)
+    }
+}
+
+impl TryIntoTxHashValue for String {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        TxHashVal::try_from(self).map(Into::into)
+    }
+}
+
+impl TryIntoTxHashValue for &String {
+    fn try_into_hash_value(self) -> AppResult<HashValue> {
+        TxHashVal::try_from(self.as_str()).map(Into::into)
+    }
+}
+
+impl Deref for TxHashVal {
+    type Target = HashValue;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl TryFrom<&str> for TxHashVal {
+    type Error = AppError;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        let hash = s
+            .parse::<HashValue>()
+            .map_err(map_err!(&EdsErr::ParseHashValue, s))?;
+        Ok(Self(hash))
+    }
+}
+
+impl TryFrom<String> for TxHashVal {
+    type Error = AppError;
+
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        Self::try_from(s.as_str())
     }
 }
