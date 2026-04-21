@@ -1,5 +1,5 @@
 use crate::client::EnhancedClient;
-use crate::client::types::TryIntoTxHashValue;
+use crate::client::types::{BaseTxnInfo, TryIntoTxHashValue};
 use crate::error::EdsErr;
 use base_infra::map_err;
 use base_infra::result::AppResult;
@@ -92,5 +92,39 @@ impl EnhancedClient {
         let (inner, state) = tx.into_parts();
         let events = inner.filter_events_by_tags(filter_tags)?;
         Ok(Response::new(events, state))
+    }
+
+    pub async fn get_txns_by_versions(
+        &self,
+        versions: Vec<u64>,
+    ) -> AppResult<Response<Vec<Transaction>>> {
+        self.client
+            .get_transactions_by_version(versions)
+            .await
+            .map_err(map_err!(&EdsErr::GetTxnsByVersions))
+    }
+
+    pub async fn get_txn_by_version(&self, version: u64) -> AppResult<Response<Transaction>> {
+        self.client
+            .get_transaction_by_version(version)
+            .await
+            .map_err(map_err!(&EdsErr::GetTxnByVersion))
+    }
+
+    pub async fn filter_txn_events_by_version(
+        &self,
+        version: u64,
+        filter_tags: Vec<MoveStructTag>,
+    ) -> AppResult<Response<BaseTxnInfo<Vec<Event>>>> {
+        let tx = self.get_txn_by_version(version).await?;
+        let (inner, state) = tx.into_parts();
+        let events = inner.filter_events_by_tags(filter_tags)?;
+
+        let txi = inner
+            .transaction_info()
+            .map_err(map_err!(&EdsErr::ParseTxnInfo))?;
+        let (ts, succ, hash) = (inner.timestamp(), inner.success(), txi.hash.clone());
+        let bs_txn = BaseTxnInfo::new(ts, succ, hash, events);
+        Ok(Response::new(bs_txn, state))
     }
 }

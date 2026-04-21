@@ -8,6 +8,25 @@ use endless_sdk::rest_client::endless_api_types::{HashValue, IndexResponse};
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
+#[derive(Debug)]
+pub struct BaseTxnInfo<T> {
+    pub timestamp: u64,
+    pub success: bool,
+    pub txn_hash: String,
+    pub event: T,
+}
+
+impl<T> BaseTxnInfo<T> {
+    pub fn new(timestamp: u64, success: bool, txn_hash: String, event: T) -> Self {
+        Self {
+            timestamp,
+            success,
+            txn_hash,
+            event,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Owner(AccountAddress);
 impl Owner {

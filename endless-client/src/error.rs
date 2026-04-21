@@ -28,6 +28,9 @@ base_infra::gen_impl_code_enum! {
         SimulateTxnErr = ("SDK006", "Failed to simulate transaction"),
         WaitForTxnErr = ("SDK007", "Failed to wait for transaction"),
         GetTxnByHash = ("SDK008", "Failed to get transaction by hash"),
+        GetTxnsByVersions = ("SDK009", "Failed to get transactions by versions"),
+        GetTxnByVersion = ("SDK010", "Failed to get transaction by version"),
+        ParseTxnInfo = ("SDK011", "Failed to parse transaction info"),
 
     }
 }

@@ -23,7 +23,7 @@ async fn test_get_events_by_hash(client: &EnhancedClient) -> anyhow::Result<()> 
 
     let events = client
         .get_txn_events_by_hash(
-            "9KEBtm19g4C8gCbM8yoQpND26EfdK8fq8c4AG11gMD8F",
+            "9UcZb1FmXvhdDvyfqcws8RtvLr1inP6Wi5adJ3EscYMM",
             vec![brg_finish, swap],
         )
         .await?;
